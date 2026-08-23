@@ -48,5 +48,7 @@ def prepare_data():
     return data["Message"], data["target"]
 
 
-prepared_db = prepare_data()
-print(f"Prepared Data: {prepared_db}")
+if __name__ == "__main__":
+    X, y = prepare_data()
+    print(X.head())
+    print(y.head())
