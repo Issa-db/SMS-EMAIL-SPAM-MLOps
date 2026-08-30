@@ -15,7 +15,8 @@ dependencies = [
     "onnx (==1.16.*)",
     "skl2onnx (>=1.20.0,<2.0.0)",
     "pydantic-settings (>=2.15.0,<3.0.0)",
-    "pydantic (>=2.13.5,<3.0.0)"
+    "pydantic (>=2.13.5,<3.0.0)",
+    "loguru (>=0.7.3,<0.8.0)"
 ]
 
 

@@ -3,8 +3,9 @@ import re
 import pandas as pd
 
 from collection import load_data
+from loguru import logger 
 
-
+@logger.catch(message="Failed to clean a message")
 def _clean_text(text):
     """Clean and normalize raw SMS/email text."""
 
@@ -25,11 +26,21 @@ def _clean_text(text):
 def _normalize_data(data):
     """Normalize labels, validate categories, and prepare message text."""
     data = data.copy()
+    before= len(data)
 
     data["Category"] = data["Category"].astype(str).str.strip().str.lower()
     data["target"] = data["Category"].map({"ham": 0, "spam": 1}).astype("int8")
+    
+    unmapped = data["target"].isna().sum()
+    if unmapped > 0:
+        logger.warning(f"{unmapped} rows had unrecognized category values (not ham/spam)")
     data["Message"] = data["Message"].fillna("").astype(str).str.strip()
     data = data[data["Message"].str.len() > 0].reset_index(drop=True)
+    
+    dropped = before - len(data)
+    if dropped > 0 :
+        logger.warning(f"dropped {dropped} rows with empty messages")
+        
     data["Message"] = data["Message"].apply(_clean_text)
     return data
 
@@ -41,10 +52,14 @@ def prepare_data():
     Returns:
         tuple[pd.Series, pd.Series]: cleaned text and binary labels.
     """
+    logger.info("Starting data Preparation pipeline")
     data = load_data()
+    logger.debug(f"Loaded {len(data)} raw rows")
     # clean the data before normalizing it
-    data["Message"] =  data["Message"].apply(_clean_text)
+    data["Message"] =  data["Message"].apply(_clean_text) 
     data = _normalize_data(data)
+    
+    logger.info(f"Data preparation complete: {len(data)} rows ready")
     return data["Message"], data["target"]
 
 

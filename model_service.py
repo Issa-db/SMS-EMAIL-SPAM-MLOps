@@ -7,7 +7,7 @@ import onnxruntime as ort
 from model import build_model
 from config import settings
 
-
+from loguru import logger 
 class ModelService:
     """Load and use the saved spam model and vectorizer"""
     def __init__(self):
@@ -29,7 +29,7 @@ class ModelService:
             model_path (Path): The path to the ONNX model file.
             vectorizer_path (Path): The path to the vectorizer file.
         """
-        
+        logger.info("loading model and vectorizer")
         if model_path is None:
             model_path = settings.model_path/ settings.model_name
         if vectorizer_path is None:
@@ -37,24 +37,39 @@ class ModelService:
         model_path = Path(model_path)
         vectorizer_path = Path(vectorizer_path)
 
+        logger.debug(f"resolve model_path={model_path}, vectorizer_path={vectorizer_path}")
         if not model_path.exists() or not vectorizer_path.exists():
-            print("Model or vectorizer file not found. Building new model...")
+            logger.warning("Model or vectorizer file not found. Building new model...")
             build_model()
 
-        self.vectorizer = joblib.load(vectorizer_path)
-        self.session = ort.InferenceSession(str(model_path), providers=["CPUExecutionProvider"])
-
+        try:
+            self.vectorizer = joblib.load(vectorizer_path)
+            logger.debug("vectorizer loaded successfully")
+        except Exception as e:
+            logger.critical(f"failed to load vectorizer from {vectorizer_path}: {e}")
+            
+        try:    
+            self.session = ort.InferenceSession(str(model_path), providers=["CPUExecutionProvider"])
+            logger.debug("ONNX inference session created succesfully")
+        except Exception as e:
+            logger.critical(f"failed to create ONNX inference session from {model_path}: {e}")
+        
         if self.session is None or self.vectorizer is None:
+            logger.critical("Model or vectorizer could not be loaded despite no exception raised")
             raise ValueError("Model or vectorizer could not be loaded. Please check the paths.")
 
-        print(f"Model loaded from {model_path} and vectorizer loaded from {vectorizer_path}")
+        logger.info(f"Model loaded from {model_path} and vectorizer loaded from {vectorizer_path}")
     
     def predict(self, message):
         """Predict spam/ham for a string or list of strings"""
         if self.vectorizer is None or self.session is None:
+            logger.error("predict() called before load_model()")
             raise ValueError("Model is not loaded. Call load_model() first.")
+        
         if isinstance(message, str):
             message = [message]
+            
+        logger.debug(f"predicting on {len(message)} message(s)")
         # transform the text message 
         x_vec = self.vectorizer.transform(message)
         x_array = x_vec.toarray().astype(np.float32) 
@@ -63,9 +78,10 @@ class ModelService:
         input_name = self.session.get_inputs()[0].name
         output_name = self.session.get_outputs()[0].name
         predictions = self.session.run([output_name], {input_name: x_array})[0]
-    
-        return predictions.astype(int).flatten().tolist()
-
+        
+        result = predictions.astype(int).flatten().tolist()
+        logger.debug(f"Predication: {result} ")
+        return result
         
 
 if __name__ == "__main__":
