@@ -9,6 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.naive_bayes import MultinomialNB
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
+from config import settings 
 
 def build_model():
     """
@@ -28,12 +29,11 @@ def build_model():
     # Evaluate the model
     evaluate_model(NB, X_test_vectorized, y_test)
     # save_model_onnx(NB, vectorizer)
-    model_dir = ensure_directories_exist(PROJECT_ROOT / "Development" / "artifacts" / "models")
-    vectorizer_dir = ensure_directories_exist(PROJECT_ROOT / "Development" / "artifacts" / "vectorizer")
+    
     save_model_onnx(NB,
                     vectorizer, 
-                    model_path = model_dir / "NB.onnx", 
-                    vectorizer_path = vectorizer_dir / "vectorizer.joblib")
+                    model_path = settings.model_path / settings.model_name,
+                    vectorizer_path = settings.vectorizer_path / settings.vectorizer_name)
     
     
 
@@ -135,22 +135,6 @@ def save_model_onnx(model, vectorizer, model_path=None, vectorizer_path=None):
         f.write(onnx_model.SerializeToString())
         
     return print(f"Model saved to {model_path} and vectorizer saved to {vectorizer_path}")
-
-# Project root directory
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
-def ensure_directories_exist(path: Path) -> Path:
-    """
-    Ensure that the necessary directories for saving the model and vectorizer exist.
-    """
-    
-    resolved_path = path.resolve()
-    if PROJECT_ROOT not in resolved_path.parents and resolved_path != PROJECT_ROOT:
-        raise ValueError(f"Refusing to write outside the project root directory: {resolved_path}")
-
-    resolved_path.mkdir(parents=True, exist_ok=True)
-    return resolved_path 
-
 
 # run the build_model function to train and evaluate the model
 model = build_model()

@@ -1,8 +1,9 @@
 import pandas as pd 
-from pathlib import Path
+#from pathlib import Path
+from config import settings
 
 
-def load_data(path = Path(__file__).parent.parent / "data" / "spam.csv"):
+def load_data(path= settings.data_file_name):
     """
     Load the dataset from the CSV file
     Returns: 
@@ -10,7 +11,6 @@ def load_data(path = Path(__file__).parent.parent / "data" / "spam.csv"):
     """
     return pd.read_csv(path, encoding='latin-1', header=0, usecols=[0, 1], names=["Category", "Message"])
 
-
-# test data collection script
+# # test data collection script
 # print ("Data Loaded Successfully")
 # print ("Data head: ", load_data())

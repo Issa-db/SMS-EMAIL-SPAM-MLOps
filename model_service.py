@@ -4,7 +4,8 @@ from pathlib import Path
 import joblib
 import numpy as np
 import onnxruntime as ort
-from model import PROJECT_ROOT, build_model
+from model import build_model
+from config import settings
 
 
 class ModelService:
@@ -30,10 +31,9 @@ class ModelService:
         """
         
         if model_path is None:
-            model_path = PROJECT_ROOT / "Development" / "artifacts" / "models" / f"{model_name}.onnx"
+            model_path = settings.model_path/ settings.model_name
         if vectorizer_path is None:
-            vectorizer_path = PROJECT_ROOT / "Development" / "artifacts" / "vectorizer" / f"{vectorizer_name}.joblib"
-
+            vectorizer_path = settings.vectorizer_path / settings.vectorizer_name
         model_path = Path(model_path)
         vectorizer_path = Path(vectorizer_path)
 
