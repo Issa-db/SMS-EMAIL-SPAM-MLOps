@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from sqlalchemy import create_engine
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import DirectoryPath, FilePath
 from loguru import logger
@@ -11,6 +12,8 @@ class Settings(BaseSettings):
     data_file_name: FilePath
     model_path: DirectoryPath
     vectorizer_path: DirectoryPath
+    db_file_name: FilePath
+    table_name: str
     model_name: str
     vectorizer_name: str
     log_level: str
@@ -31,3 +34,11 @@ logger.add(sys.stderr, level="INFO", colorize=True)
 logger.add("logs/app_{time:YYYY-MM-DD}.log", level=settings.log_level, rotation="10 MB", retention="7 days")
 
 logger.info("Settings loaded successfully from .env")
+
+try:
+    engine = create_engine(f"sqlite:///{settings.db_file_name}")
+    logger.info(f"Database engine created for {settings.db_file_name}")
+except Exception as e:
+    logger.critical(f"Failed to create database engine: {e}")
+    raise
+        

@@ -2,7 +2,7 @@ import re
 
 import pandas as pd
 
-from collection import load_data
+from collection import load_data_from_db
 from loguru import logger 
 
 @logger.catch(message="Failed to clean a message")
@@ -53,7 +53,7 @@ def prepare_data():
         tuple[pd.Series, pd.Series]: cleaned text and binary labels.
     """
     logger.info("Starting data Preparation pipeline")
-    data = load_data()
+    data = load_data_from_db()
     logger.debug(f"Loaded {len(data)} raw rows")
     # clean the data before normalizing it
     data["Message"] =  data["Message"].apply(_clean_text) 
