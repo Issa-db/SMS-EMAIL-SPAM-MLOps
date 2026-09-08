@@ -4,8 +4,8 @@ from pathlib import Path
 import joblib
 import numpy as np
 import onnxruntime as ort
-from model import build_model
-from config import settings
+from model.pipeline.model import build_model
+from config.config import settings
 
 from loguru import logger 
 class ModelService:

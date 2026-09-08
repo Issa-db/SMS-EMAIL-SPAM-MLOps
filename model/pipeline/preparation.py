@@ -2,7 +2,7 @@ import re
 
 import pandas as pd
 
-from collection import load_data_from_db
+from model.pipeline.collection import load_data_from_db
 from loguru import logger 
 
 @logger.catch(message="Failed to clean a message")

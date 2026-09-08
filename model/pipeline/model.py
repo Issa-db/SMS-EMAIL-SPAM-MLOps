@@ -1,14 +1,14 @@
 import joblib
 import onnx
 from pathlib import Path
-from preparation import prepare_data
+from model.pipeline.preparation import prepare_data
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.pipeline import Pipeline
 from sklearn.naive_bayes import MultinomialNB
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
-from config import settings 
+from config.config import settings 
 
 from loguru import logger
 

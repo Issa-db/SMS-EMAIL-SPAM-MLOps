@@ -1,8 +1,8 @@
 import pandas as pd 
 #from pathlib import Path
-from config import settings
-from config import engine
-from db_model import spam
+from config.config import settings
+from config.config import engine
+from db.db_model import ham
 from sqlalchemy import select 
 from loguru import logger
 
@@ -23,7 +23,7 @@ def load_data_from_db():
             DataFrame: The Loaded dataset as a pandas DataFrame 
     """
     logger.info("Extracting the data from database")
-    query= select(spam)
+    query= select(ham)
     return pd.read_sql(query, engine)
     
 

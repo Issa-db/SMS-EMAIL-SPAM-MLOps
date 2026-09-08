@@ -1,6 +1,6 @@
 import sys
 
-from model_service import ModelService
+from model.model_service import ModelService
 from loguru import logger
 
 

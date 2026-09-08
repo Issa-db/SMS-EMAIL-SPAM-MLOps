@@ -1,12 +1,12 @@
 from sqlalchemy import VARCHAR
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from config import settings
+from config.config import settings
 
 class Base(DeclarativeBase):
     """Base class for all ORM models in this project."""
     pass
 
-class spam(Base):
+class ham(Base):
     """
      A single labeled message record.
 
