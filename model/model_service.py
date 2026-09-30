@@ -15,7 +15,7 @@ import numpy as np
 import onnxruntime as ort
 from loguru import logger
 
-from config.config import settings
+from config import model_settings
 from model.pipeline.model import build_model
 
 
@@ -42,10 +42,10 @@ class ModelService:
         """
         logger.info("loading model and vectorizer")
         if model_path is None:
-            model_path = settings.model_path / settings.model_name
+            model_path = model_settings.model_path / model_settings.model_name
         if vectorizer_path is None:
             vectorizer_path = (
-                settings.vectorizer_path / settings.vectorizer_name
+                model_settings.vectorizer_path / model_settings.vectorizer_name
                 )
         model_path = Path(model_path)
         vectorizer_path = Path(vectorizer_path)

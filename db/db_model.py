@@ -9,7 +9,7 @@ for the spam classifier.
 from sqlalchemy import VARCHAR
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from config.config import settings
+from config import db_settings
 
 
 class Base(DeclarativeBase):
@@ -29,7 +29,7 @@ class ham(Base):
         — expected values: "ham" or "spam".
         Message (str): The raw, unprocessed SMS/email text.
     """
-    __tablename__ = settings.table_name
+    __tablename__ = db_settings.table_name
 
     Category: Mapped[str] = mapped_column(VARCHAR(), primary_key=True)
     Message: Mapped[str] = mapped_column(VARCHAR())

@@ -13,12 +13,11 @@ from pathlib import Path
 from loguru import logger
 from sqlalchemy import select
 
-from config.config import engine
-from config.config import settings
+from config import db_settings, engine
 from db.db_model import ham
 
 
-def load_data(path: str | Path = settings.data_file_name) -> pd.DataFrame:
+def load_data(path: str | Path = db_settings.data_file_name) -> pd.DataFrame:
     """
     Load the dataset from the CSV file
     Returns:

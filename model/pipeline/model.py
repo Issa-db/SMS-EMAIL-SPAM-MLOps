@@ -20,7 +20,7 @@ from sklearn.naive_bayes import MultinomialNB
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
 
-from config.config import settings
+from config import model_settings
 from model.pipeline.preparation import prepare_data
 
 
@@ -50,8 +50,10 @@ def build_model() -> None:
     save_model_onnx(
         NB,
         vectorizer,
-        model_path=settings.model_path / settings.model_name,
-        vectorizer_path=settings.vectorizer_path / settings.vectorizer_name,
+        model_path=model_settings.model_path / model_settings.model_name,
+        vectorizer_path=(
+            model_settings.vectorizer_path / model_settings.vectorizer_name
+            ),
     )
     logger.info("Model build pipeline complete")
 
