@@ -1,0 +1,99 @@
+2026-10-02 09:53:10.557 | INFO     | config.logger:<module>:60 - settings loaded successfully from .env
+2026-10-02 09:53:10.687 | INFO     | config.db:<module>:48 - settings loaded successfully from .env
+2026-10-02 09:53:10.708 | INFO     | config.db:<module>:55 - Database engine created for sqlite:///./db/emails.sqlite
+2026-10-02 09:53:10.710 | INFO     | config.model:<module>:46 - settings loaded successfully from .env
+2026-10-02 09:53:12.235 | INFO     | model.pipeline.model:build_model:33 - Starting model building pipeline
+2026-10-02 09:53:12.235 | INFO     | model.pipeline.preparation:prepare_data:75 - Starting data Preparation pipeline
+2026-10-02 09:53:12.235 | INFO     | model.pipeline.collection:load_data_from_db:41 - Extracting the data from database
+2026-10-02 09:53:12.248 | DEBUG    | model.pipeline.preparation:prepare_data:77 - Loaded 5572 raw rows
+2026-10-02 09:53:12.301 | WARNING  | model.pipeline.preparation:_normalize_data:62 - dropped 3 rows with empty messages
+2026-10-02 09:53:12.342 | INFO     | model.pipeline.preparation:prepare_data:82 - Data preparation complete: 5569 rows ready
+2026-10-02 09:53:12.342 | INFO     | model.pipeline.model:build_model:35 - Prepare data: 5569 samples
+2026-10-02 09:53:12.342 | DEBUG    | model.pipeline.model:split_train_test:73 - Splitting data: test_size=0.2, random_state=42, total_samples=5569
+2026-10-02 09:53:12.343 | INFO     | model.pipeline.model:build_model:39 - Split data: 4455 train / 1114 test
+2026-10-02 09:53:12.343 | DEBUG    | model.pipeline.model:vectorize_data:98 - Vectorizing with CountVectorizer (ngram_range=(1,2), min_df=5, stop_words='english')
+2026-10-02 09:53:12.404 | DEBUG    | model.pipeline.model:vectorize_data:113 - vocabulary size: 1670
+2026-10-02 09:53:12.404 | DEBUG    | model.pipeline.model:build_model:44 - Vectorizer features: 1670 columns
+2026-10-02 09:53:12.404 | INFO     | model.pipeline.model:train_model:126 - starting GridSearchCV hyperparameter search
+2026-10-02 09:53:12.447 | INFO     | model.pipeline.model:train_model:138 - best parms: {'alpha': 1.0, 'fit_prior': True} best CV score: 0.9793
+2026-10-02 09:53:12.447 | INFO     | model.pipeline.model:evaluate_model:158 - model accuracy: 0.9847
+2026-10-02 09:53:12.447 | WARNING  | model.pipeline.model:evaluate_model:160 - Accuracy (0.9847) is below expected threshold (0.99)
+2026-10-02 09:53:12.486 | DEBUG    | model.pipeline.model:save_model_onnx:180 - vectorizer saved to artifacts/vectorizer/vectorizer.joblib
+2026-10-02 09:53:12.493 | INFO     | model.pipeline.model:save_model_onnx:200 - Model saved to artifacts/models/NB_db_v1.onnx and vectorizer saved to artifacts/vectorizer/vectorizer.joblib
+2026-10-02 09:53:12.493 | INFO     | model.pipeline.model:build_model:58 - Model build pipeline complete
+2026-10-02 09:53:12.494 | INFO     | __main__:main:15 - starting spam detection runner
+2026-10-02 09:53:12.494 | INFO     | model.model_service:load_model:43 - loading model and vectorizer
+2026-10-02 09:53:12.494 | DEBUG    | model.model_service:load_model:53 - resolve model_path=artifacts/models/NB_db_v1.onnx, vectorizer_path=artifacts/vectorizer/vectorizer.joblib
+2026-10-02 09:53:12.513 | DEBUG    | model.model_service:load_model:62 - vectorizer loaded successfully
+2026-10-02 09:53:12.543 | DEBUG    | model.model_service:load_model:71 - ONNX inference session created succesfully
+2026-10-02 09:53:12.543 | INFO     | model.model_service:load_model:82 - Model loaded from artifacts/models/NB_db_v1.onnx , vectorizer loaded from artifacts/vectorizer/vectorizer.joblib
+2026-10-02 09:53:12.543 | DEBUG    | __main__:main:33 - sample inputs: ['Hi, can we meet tomorrow for lunch?', 'You have won a free prize! Call now to claim your reward.', 'Please check the attached invoice.', "I'm reaching out to follow up on my previous message and would appreciate any updates when you have a moment.", "Congratulations! You've been selected to win a $1000 gift card. Click here now to claim before it expires!"]
+2026-10-02 09:53:12.543 | DEBUG    | model.model_service:predict:94 - predicting on 5 message(s)
+2026-10-02 09:53:12.546 | DEBUG    | model.model_service:predict:104 - Prediction: [0, 1, 0, 0, 1] 
+2026-10-02 09:53:12.546 | INFO     | __main__:main:42 - Runner completed successfully
+2026-10-02 09:57:45.907 | INFO     | config.logger:<module>:60 - settings loaded successfully from .env
+2026-10-02 09:57:45.997 | INFO     | config.db:<module>:48 - settings loaded successfully from .env
+2026-10-02 09:57:46.009 | INFO     | config.db:<module>:55 - Database engine created for sqlite:///./db/emails.sqlite
+2026-10-02 09:57:46.011 | INFO     | config.model:<module>:46 - settings loaded successfully from .env
+2026-10-02 09:57:47.255 | INFO     | model.pipeline.model:build_model:33 - Starting model building pipeline
+2026-10-02 09:57:47.255 | INFO     | model.pipeline.preparation:prepare_data:75 - Starting data Preparation pipeline
+2026-10-02 09:57:47.256 | INFO     | model.pipeline.collection:load_data_from_db:41 - Extracting the data from database
+2026-10-02 09:57:47.268 | DEBUG    | model.pipeline.preparation:prepare_data:77 - Loaded 5572 raw rows
+2026-10-02 09:57:47.323 | WARNING  | model.pipeline.preparation:_normalize_data:62 - dropped 3 rows with empty messages
+2026-10-02 09:57:47.363 | INFO     | model.pipeline.preparation:prepare_data:82 - Data preparation complete: 5569 rows ready
+2026-10-02 09:57:47.363 | INFO     | model.pipeline.model:build_model:35 - Prepare data: 5569 samples
+2026-10-02 09:57:47.363 | DEBUG    | model.pipeline.model:split_train_test:73 - Splitting data: test_size=0.2, random_state=42, total_samples=5569
+2026-10-02 09:57:47.364 | INFO     | model.pipeline.model:build_model:39 - Split data: 4455 train / 1114 test
+2026-10-02 09:57:47.364 | DEBUG    | model.pipeline.model:vectorize_data:98 - Vectorizing with CountVectorizer (ngram_range=(1,2), min_df=5, stop_words='english')
+2026-10-02 09:57:47.424 | DEBUG    | model.pipeline.model:vectorize_data:113 - vocabulary size: 1670
+2026-10-02 09:57:47.424 | DEBUG    | model.pipeline.model:build_model:44 - Vectorizer features: 1670 columns
+2026-10-02 09:57:47.424 | INFO     | model.pipeline.model:train_model:126 - starting GridSearchCV hyperparameter search
+2026-10-02 09:57:47.467 | INFO     | model.pipeline.model:train_model:138 - best parms: {'alpha': 1.0, 'fit_prior': True} best CV score: 0.9793
+2026-10-02 09:57:47.467 | INFO     | model.pipeline.model:evaluate_model:158 - model accuracy: 0.9847
+2026-10-02 09:57:47.467 | WARNING  | model.pipeline.model:evaluate_model:160 - Accuracy (0.9847) is below expected threshold (0.99)
+2026-10-02 09:57:47.503 | DEBUG    | model.pipeline.model:save_model_onnx:180 - vectorizer saved to artifacts/vectorizer/vectorizer.joblib
+2026-10-02 09:57:47.509 | INFO     | model.pipeline.model:save_model_onnx:200 - Model saved to artifacts/models/NB_db_v1.onnx and vectorizer saved to artifacts/vectorizer/vectorizer.joblib
+2026-10-02 09:57:47.509 | INFO     | model.pipeline.model:build_model:58 - Model build pipeline complete
+2026-10-02 09:57:47.510 | INFO     | __main__:main:15 - starting spam detection runner
+2026-10-02 09:57:47.510 | INFO     | model.model_service:load_model:43 - loading model and vectorizer
+2026-10-02 09:57:47.510 | DEBUG    | model.model_service:load_model:53 - resolve model_path=artifacts/models/NB_db_v1.onnx, vectorizer_path=artifacts/vectorizer/vectorizer.joblib
+2026-10-02 09:57:47.530 | DEBUG    | model.model_service:load_model:62 - vectorizer loaded successfully
+2026-10-02 09:57:47.561 | DEBUG    | model.model_service:load_model:71 - ONNX inference session created succesfully
+2026-10-02 09:57:47.562 | INFO     | model.model_service:load_model:82 - Model loaded from artifacts/models/NB_db_v1.onnx , vectorizer loaded from artifacts/vectorizer/vectorizer.joblib
+2026-10-02 09:57:47.562 | DEBUG    | __main__:main:33 - sample inputs: ['Hi, can we meet tomorrow for lunch?', 'You have won a free prize! Call now to claim your reward.', 'Please check the attached invoice.', "I'm reaching out to follow up on my previous message and would appreciate any updates when you have a moment.", "Congratulations! You've been selected to win a $1000 gift card. Click here now to claim before it expires!"]
+2026-10-02 09:57:47.562 | DEBUG    | model.model_service:predict:94 - predicting on 5 message(s)
+2026-10-02 09:57:47.565 | DEBUG    | model.model_service:predict:104 - Prediction: [0, 1, 0, 0, 1] 
+2026-10-02 09:57:47.565 | INFO     | __main__:main:42 - Runner completed successfully
+2026-10-02 10:00:28.839 | INFO     | config.logger:<module>:60 - settings loaded successfully from .env
+2026-10-02 10:00:28.960 | INFO     | config.db:<module>:48 - settings loaded successfully from .env
+2026-10-02 10:00:28.974 | INFO     | config.db:<module>:55 - Database engine created for sqlite:///./db/emails.sqlite
+2026-10-02 10:00:28.977 | INFO     | config.model:<module>:46 - settings loaded successfully from .env
+2026-10-02 10:00:30.837 | INFO     | model.pipeline.model:build_model:33 - Starting model building pipeline
+2026-10-02 10:00:30.837 | INFO     | model.pipeline.preparation:prepare_data:75 - Starting data Preparation pipeline
+2026-10-02 10:00:30.837 | INFO     | model.pipeline.collection:load_data_from_db:41 - Extracting the data from database
+2026-10-02 10:00:30.851 | DEBUG    | model.pipeline.preparation:prepare_data:77 - Loaded 5572 raw rows
+2026-10-02 10:00:30.911 | WARNING  | model.pipeline.preparation:_normalize_data:62 - dropped 3 rows with empty messages
+2026-10-02 10:00:30.953 | INFO     | model.pipeline.preparation:prepare_data:82 - Data preparation complete: 5569 rows ready
+2026-10-02 10:00:30.953 | INFO     | model.pipeline.model:build_model:35 - Prepare data: 5569 samples
+2026-10-02 10:00:30.953 | DEBUG    | model.pipeline.model:split_train_test:73 - Splitting data: test_size=0.2, random_state=42, total_samples=5569
+2026-10-02 10:00:30.955 | INFO     | model.pipeline.model:build_model:39 - Split data: 4455 train / 1114 test
+2026-10-02 10:00:30.955 | DEBUG    | model.pipeline.model:vectorize_data:98 - Vectorizing with CountVectorizer (ngram_range=(1,2), min_df=5, stop_words='english')
+2026-10-02 10:00:31.037 | DEBUG    | model.pipeline.model:vectorize_data:113 - vocabulary size: 1670
+2026-10-02 10:00:31.037 | DEBUG    | model.pipeline.model:build_model:44 - Vectorizer features: 1670 columns
+2026-10-02 10:00:31.037 | INFO     | model.pipeline.model:train_model:126 - starting GridSearchCV hyperparameter search
+2026-10-02 10:00:31.087 | INFO     | model.pipeline.model:train_model:138 - best parms: {'alpha': 1.0, 'fit_prior': True} best CV score: 0.9793
+2026-10-02 10:00:31.087 | INFO     | model.pipeline.model:evaluate_model:158 - model accuracy: 0.9847
+2026-10-02 10:00:31.087 | WARNING  | model.pipeline.model:evaluate_model:160 - Accuracy (0.9847) is below expected threshold (0.99)
+2026-10-02 10:00:31.125 | DEBUG    | model.pipeline.model:save_model_onnx:180 - vectorizer saved to artifacts/vectorizer/vectorizer.joblib
+2026-10-02 10:00:31.131 | INFO     | model.pipeline.model:save_model_onnx:200 - Model saved to artifacts/models/NB_db_v1.onnx and vectorizer saved to artifacts/vectorizer/vectorizer.joblib
+2026-10-02 10:00:31.131 | INFO     | model.pipeline.model:build_model:58 - Model build pipeline complete
+2026-10-02 10:00:31.132 | INFO     | __main__:main:15 - starting spam detection runner
+2026-10-02 10:00:31.132 | INFO     | model.model_service:load_model:43 - loading model and vectorizer
+2026-10-02 10:00:31.132 | DEBUG    | model.model_service:load_model:53 - resolve model_path=artifacts/models/NB_db_v1.onnx, vectorizer_path=artifacts/vectorizer/vectorizer.joblib
+2026-10-02 10:00:31.152 | DEBUG    | model.model_service:load_model:62 - vectorizer loaded successfully
+2026-10-02 10:00:31.191 | DEBUG    | model.model_service:load_model:71 - ONNX inference session created succesfully
+2026-10-02 10:00:31.191 | INFO     | model.model_service:load_model:82 - Model loaded from artifacts/models/NB_db_v1.onnx , vectorizer loaded from artifacts/vectorizer/vectorizer.joblib
+2026-10-02 10:00:31.191 | DEBUG    | __main__:main:33 - sample inputs: ['Hi, can we meet tomorrow for lunch?', 'You have won a free prize! Call now to claim your reward.', 'Please check the attached invoice.', "I'm reaching out to follow up on my previous message and would appreciate any updates when you have a moment.", "Congratulations! You've been selected to win a $1000 gift card. Click here now to claim before it expires!"]
+2026-10-02 10:00:31.191 | DEBUG    | model.model_service:predict:94 - predicting on 5 message(s)
+2026-10-02 10:00:31.196 | DEBUG    | model.model_service:predict:104 - Prediction: [0, 1, 0, 0, 1] 
+2026-10-02 10:00:31.196 | INFO     | __main__:main:42 - Runner completed successfully

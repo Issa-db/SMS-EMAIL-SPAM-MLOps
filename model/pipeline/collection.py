@@ -8,13 +8,14 @@ cleaning and model training.
 """
 
 
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 from loguru import logger
 from sqlalchemy import select
 
 from config import db_settings, engine
-from db.db_model import ham
+from db.db_model import SpamMessage
 
 
 def load_data(path: str | Path = db_settings.data_file_name) -> pd.DataFrame:
@@ -39,7 +40,7 @@ def load_data_from_db() -> pd.DataFrame:
             DataFrame: The Loaded dataset as a pandas DataFrame
     """
     logger.info("Extracting the data from database")
-    query = select(ham)
+    query = select(SpamMessage)
     return pd.read_sql(query, engine)
 
 

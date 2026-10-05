@@ -14,7 +14,6 @@ from pydantic import FilePath
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import create_engine
 
-
 CONFIG_DIR = Path(__file__).resolve().parent
 
 
@@ -47,12 +46,12 @@ try:
     db_settings = DbSettings()
     logger.info("settings loaded successfully from .env")
 except Exception as e:
-    print(f"CRITICAL: failed to load db settings from .env: {e}")
+    logger.critical(f'CRITICAL: failed to load db settings from .env: {e}')
     raise
 
 try:
     engine = create_engine(db_settings.db_url)
-    logger.info(f"Database engine created for {db_settings.db_url}")
+    logger.info(f'Database engine created for {db_settings.db_url}')
 except Exception as e:
-    logger.critical(f"Failed to create database engine: {e}")
+    logger.critical(f'Failed to create database engine: {e}')
     raise

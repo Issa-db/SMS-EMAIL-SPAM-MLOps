@@ -14,10 +14,9 @@ from config import db_settings
 
 class Base(DeclarativeBase):
     """Base class for all ORM models in this project."""
-    pass
 
 
-class ham(Base):
+class SpamMessage(Base):
     """
      A single labeled message record.
 

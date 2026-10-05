@@ -14,14 +14,18 @@ import joblib
 import pandas as pd
 import scipy
 from loguru import logger
+from skl2onnx import convert_sklearn
+from skl2onnx.common.data_types import FloatTensorType
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.naive_bayes import MultinomialNB
-from skl2onnx import convert_sklearn
-from skl2onnx.common.data_types import FloatTensorType
 
 from config import model_settings
 from model.pipeline.preparation import prepare_data
+
+TEST_SIZE = 0.2
+RANDOM_STATE = 42
+MIN_ACCURACY_THRESHOLD = 0.99
 
 
 def build_model() -> None:
@@ -41,7 +45,7 @@ def build_model() -> None:
     X_train_vectorized, X_test_vectorized, vectorizer = vectorize_data(
         X_train,
         X_test)
-    logger.debug(f"Vectorizer features: {X_train_vectorized.shape[1]} columns")
+    logger.debug(f'Vectorizer features: {X_train_vectorized.shape[1]} columns')
     # Train the model
     NB = train_model(X_train_vectorized, y_train)
     # Evaluate the model
@@ -53,7 +57,7 @@ def build_model() -> None:
         model_path=model_settings.model_path / model_settings.model_name,
         vectorizer_path=(
             model_settings.vectorizer_path / model_settings.vectorizer_name
-            ),
+        ),
     )
     logger.info("Model build pipeline complete")
 
@@ -71,14 +75,14 @@ def split_train_test(X: pd.Series, y: pd.Series) -> tuple[pd.Series,
     """
     # Split the data into training and testing sets
     logger.debug(
-        f"Splitting data: test_size=0.2, random_state=42, "
-        f"total_samples={len(X)}"
-        )
-    X_train, X_test, y_train, y_test = train_test_split(X,
-                                                        y,
-                                                        test_size=0.2,
-                                                        random_state=42
-                                                        )
+        f'Splitting data: test_size={TEST_SIZE}, random_state={RANDOM_STATE}, '
+        f'total_samples={len(X)}'
+    )
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=TEST_SIZE,
+        random_state=RANDOM_STATE)
     return X_train, X_test, y_train, y_test
 
 
@@ -110,7 +114,7 @@ def vectorize_data(X_train: pd.Series, X_test: pd.Series) -> tuple[
 
     # Transform the test data
     X_test_vectorized = vectorizer.transform(X_test)
-    logger.debug(f"vocabulary size: {len(vectorizer.get_feature_names_out())}")
+    logger.debug(f'vocabulary size: {len(vectorizer.get_feature_names_out())}')
     return X_train_vectorized, X_test_vectorized, vectorizer
 
 
@@ -135,8 +139,8 @@ def train_model(X_train_vectorized: scipy.sparse.spmatrix,
                                scoring="accuracy")
     # train the model
     grid_search.fit(X_train_vectorized, y_train)
-    logger.info(f"best parms: {grid_search.best_params_}"
-                f" best CV score: {grid_search.best_score_:.4f}")
+    logger.info(f'best parms: {grid_search.best_params_}'
+                f' best CV score: {grid_search.best_score_:.4f}')
     # return model
     return grid_search.best_estimator_
 
@@ -156,9 +160,10 @@ def evaluate_model(model: MultinomialNB,
     # Evaluate the model
     accuracy = model.score(X_test_vectorized, y_test)
     logger.info(f"model accuracy: {accuracy:.4f}")
-    if accuracy < 0.99:
-        logger.warning(f"Accuracy ({accuracy:.4f})"
-                       f" is below expected threshold (0.99)")
+    if accuracy < MIN_ACCURACY_THRESHOLD:
+        logger.warning(f'Accuracy ({accuracy:.4f})'
+                       f'is below expected threshold'
+                       f'({MIN_ACCURACY_THRESHOLD:.4f})')
 
 
 def save_model_onnx(model: MultinomialNB,
@@ -177,9 +182,13 @@ def save_model_onnx(model: MultinomialNB,
     try:
         # Save the vectorizer using joblib
         joblib.dump(vectorizer, vectorizer_path)
-        logger.debug(f"vectorizer saved to {vectorizer_path}")
-    except Exception as e:
-        logger.error(f"failed to save vectorizer: {e}")
+        logger.debug(f'vectorizer saved to {vectorizer_path}')
+    except (
+            FileNotFoundError,
+            OSError,
+            ValueError
+    ) as e:
+        logger.error(f'failed to save vectorizer: {e}')
         raise
 
     try:
@@ -187,18 +196,26 @@ def save_model_onnx(model: MultinomialNB,
         # Convert the model to ONNX format
         initial_type = [("input", FloatTensorType([None, n_features]))]
         onnx_model = convert_sklearn(model, initial_types=initial_type)
-    except Exception as e:
-        logger.critical(f"ONNX conversion failed, model not saved: {e}")
+    except (
+            FileNotFoundError,
+            RuntimeError,
+            ValueError
+    ) as e:
+        logger.critical(f'ONNX conversion failed, model not saved: {e}')
     try:
         # Save the ONNX model to disk
         with open(model_path, "wb") as f:
             f.write(onnx_model.SerializeToString())
-    except OSError as e:
-        logger.critical(f"cannot write model file to disk: {e}")
+    except (
+            FileNotFoundError,
+            RuntimeError,
+            ValueError
+    ) as e:
+        logger.critical(f'cannot write model file to disk: {e}')
         raise
 
-    logger.info(f"Model saved to {model_path}"
-                f" and vectorizer saved to {vectorizer_path}")
+    logger.info(f'Model saved to {model_path}'
+                f' and vectorizer saved to {vectorizer_path}')
 
 
 # run the build_model function to train and evaluate the model

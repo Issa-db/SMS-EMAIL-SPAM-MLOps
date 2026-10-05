@@ -13,6 +13,8 @@ from loguru import logger
 
 from model.pipeline.collection import load_data_from_db
 
+MESSAGE_COLUMN = "Message"
+
 
 @logger.catch(message="Failed to clean a message")
 def _clean_text(text: str) -> str:
@@ -31,38 +33,41 @@ def _clean_text(text: str) -> str:
     return " ".join(text.split())
 
 
-# test _clean_text function
-# df = load_data()
-# df["Message"] = df["Message"].apply(_clean_text)
-# print("Cleaned Data head: ", df.head())
-
-
-def _normalize_data(data: pd.DataFrame) -> pd.DataFrame:
+def _normalize_data(dataset: pd.DataFrame) -> pd.DataFrame:
     """
     Normalize labels, validate categories, and prepare message text.
 
     Args:
-        data (pd.DataFrame): The raw dataset
-        containing "Category" and "Message" columns.
+        dataset (pd.DataFrame): The raw dataset containing "Category"
+        and "Message" columns.
     """
-    data = data.copy()
-    before = len(data)
+    dataset = dataset.copy()
+    before = len(dataset)
+    messages = dataset[MESSAGE_COLUMN].copy()
 
-    data["Category"] = data["Category"].astype(str).str.strip().str.lower()
-    data["target"] = data["Category"].map({"ham": 0, "spam": 1}).astype("int8")
+    dataset["Category"] = (
+        dataset["Category"].astype(str).str.strip().str.lower()
+    )
+    dataset["target"] = (
+        dataset["Category"].map({"ham": 0, "spam": 1}).astype("int8")
+    )
 
-    unmapped = data["target"].isna().sum()
+    unmapped = dataset["target"].isna().sum()
     if unmapped > 0:
         logger.warning(f"{unmapped} rows had unrecognized category values")
-    data["Message"] = data["Message"].fillna("").astype(str).str.strip()
-    data = data[data["Message"].str.len() > 0].reset_index(drop=True)
 
-    dropped = before - len(data)
+    messages = messages.fillna("").astype(str).str.strip()
+    dataset = dataset[messages.str.len() > 0].reset_index(drop=True)
+    messages = messages[messages.str.len() > 0].reset_index(drop=True)
+
+    dropped = before - len(dataset)
     if dropped > 0:
         logger.warning(f"dropped {dropped} rows with empty messages")
 
-    data["Message"] = data["Message"].apply(_clean_text)
-    return data
+    messages = messages.apply(_clean_text)
+    dataset[MESSAGE_COLUMN] = messages
+
+    return dataset
 
 
 def prepare_data() -> tuple[pd.Series, pd.Series]:
@@ -73,17 +78,17 @@ def prepare_data() -> tuple[pd.Series, pd.Series]:
         tuple[pd.Series, pd.Series]: cleaned text and binary labels.
     """
     logger.info("Starting data Preparation pipeline")
-    data = load_data_from_db()
-    logger.debug(f"Loaded {len(data)} raw rows")
+    query_data = load_data_from_db()
+    logger.debug(f"Loaded {len(query_data)} raw rows")
     # clean the data before normalizing it
-    data["Message"] = data["Message"].apply(_clean_text)
-    data = _normalize_data(data)
+    query_data[MESSAGE_COLUMN] = query_data[MESSAGE_COLUMN].apply(_clean_text)
+    query_data = _normalize_data(query_data)
 
-    logger.info(f"Data preparation complete: {len(data)} rows ready")
-    return data["Message"], data["target"]
+    logger.info(f'Data preparation complete: {len(query_data)} rows ready')
+    return query_data[MESSAGE_COLUMN], query_data["target"]
 
 
 if __name__ == "__main__":
-    X, y = prepare_data()
-    print(X.head())
-    print(y.head())
+    X_sample, y_sample = prepare_data()
+    logger.info(f"Sample text:\n{X_sample.head()}")
+    logger.info(f"Sample labels:\n{y_sample.head()}")

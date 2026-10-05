@@ -31,8 +31,8 @@ class ModelService:
         model_path: str | Path | None = None,
         vectorizer_path: str | Path | None = None,
         model_name: str = "NB",
-        vectorizer_name: str = "vectorizer"
-            ) -> None:
+        vectorizer_name: str = "vectorizer",
+    ) -> None:
         """
         Load the trained model and vectorizer from local disk.
 
@@ -46,12 +46,12 @@ class ModelService:
         if vectorizer_path is None:
             vectorizer_path = (
                 model_settings.vectorizer_path / model_settings.vectorizer_name
-                )
+            )
         model_path = Path(model_path)
         vectorizer_path = Path(vectorizer_path)
 
-        logger.debug(f"resolve model_path={model_path}"
-                     f", vectorizer_path={vectorizer_path}")
+        logger.debug(f'resolve model_path={model_path}'
+                     f', vectorizer_path={vectorizer_path}')
         if not model_path.exists() or not vectorizer_path.exists():
             logger.warning("Model or vectorizer file not found."
                            "Building new one...")
@@ -60,18 +60,26 @@ class ModelService:
         try:
             self.vectorizer = joblib.load(vectorizer_path)
             logger.debug("vectorizer loaded successfully")
-        except Exception as e:
-            logger.critical(f"failed to load vectorizer from "
-                            f"{vectorizer_path}:{e}")
+        except (
+            FileNotFoundError,
+            OSError,
+            ValueError
+        ) as e:
+            logger.critical(f'failed to load vectorizer from '
+                            f'{vectorizer_path}:{e}')
 
         try:
             self.session = ort.InferenceSession(
                 str(model_path), providers=["CPUExecutionProvider"]
-                )
+            )
             logger.debug("ONNX inference session created succesfully")
-        except Exception as e:
-            logger.critical(f"failed to create ONNX inference session from "
-                            f"{model_path}: {e}")
+        except (
+            FileNotFoundError,
+            RuntimeError,
+            ValueError
+        ) as e:
+            logger.critical(f'failed to create ONNX inference session from '
+                            f'{model_path}: {e}')
 
         if self.session is None or self.vectorizer is None:
             logger.critical("Model or vectorizer could not be loaded"
@@ -79,8 +87,8 @@ class ModelService:
             raise ValueError("Model or vectorizer could not be loaded. "
                              "Please check the paths.")
 
-        logger.info(f"Model loaded from {model_path} "
-                    f", vectorizer loaded from {vectorizer_path}")
+        logger.info(f'Model loaded from {model_path} '
+                    f'and vectorizer loaded from {vectorizer_path}')
 
     def predict(self, message: str | list[str]) -> list[int]:
         """Predict spam/ham for a string or list of strings"""
@@ -100,9 +108,9 @@ class ModelService:
         output_name = self.session.get_outputs()[0].name
         predictions = self.session.run([output_name], {input_name: x_array})[0]
 
-        result = predictions.astype(int).flatten().tolist()
-        logger.debug(f"Prediction: {result} ")
-        return result
+        prediction_result = predictions.astype(int).flatten().tolist()
+        logger.debug(f'Prediction: {prediction_result} ')
+        return prediction_result
 
 
 # if __name__ == "__main__":

@@ -35,9 +35,8 @@ def main() -> None:
 
     for msg, pred in zip(texts, preds):
         label = "spam" if pred == 1 else "ham"
-        print(f"Message: {msg}")
-        print(f"Prediction: {label}")
-        print("-" * 50)
+        logger.info(f"Message: {msg}")
+        logger.info(f"Prediction: {label}")
 
     logger.info("Runner completed successfully")
 

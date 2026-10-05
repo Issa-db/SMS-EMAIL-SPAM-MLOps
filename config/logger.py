@@ -11,7 +11,6 @@ from pathlib import Path
 from loguru import logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 CONFIG_DIR = Path(__file__).resolve().parent
 
 
@@ -59,5 +58,5 @@ try:
     configure_logger(logger_settings.log_level)
     logger.info("settings loaded successfully from .env")
 except Exception as e:
-    print(f"CRITICAL: failed to load settings from .env: {e}")
+    logger.critical(f'CRITICAL: failed to load settings from .env: {e}')
     raise
