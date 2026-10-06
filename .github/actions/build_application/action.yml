@@ -1,0 +1,33 @@
+name: "Build Application"
+description: "Install Poetry and project dependencies"
+
+inputs:
+  python-version:
+    description: "Python version to set up"
+    required: false
+    default: "3.12"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+
+    - name: Install dependencies
+      run: poetry install --no-interaction
+      shell: bash

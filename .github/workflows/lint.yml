@@ -1,0 +1,52 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build application
+        uses: ./.github/actions/build_application
+        with:
+          python-version: "3.12"
+
+      - name: Lint with flake8
+        run: poetry run flake8
+
+  run-pipeline:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build application
+        uses: ./.github/actions/build_application
+        with:
+          python-version: "3.12"
+
+      - name: Create required directories
+        run: mkdir -p logs artifacts/models artifacts/vectorizer
+
+      - name: Run pipeline (train + inference)
+        env:
+          DATA_FILE_NAME: ${{ vars.DATA_FILE_NAME }}
+          DB_FILE_NAME: ${{ vars.DB_FILE_NAME }}
+          DB_URL: ${{ vars.DB_URL }}
+          MODEL_PATH: ${{ vars.MODEL_PATH }}
+          MODEL_NAME: ${{ vars.MODEL_NAME }}
+          VECTORIZER_PATH: ${{ vars.VECTORIZER_PATH }}
+          VECTORIZER_NAME: ${{ vars.VECTORIZER_NAME }}
+          TABLE_NAME: ${{ vars.TABLE_NAME }}
+          LOG_LEVEL: INFO
+        run: poetry run python3 runner.py
