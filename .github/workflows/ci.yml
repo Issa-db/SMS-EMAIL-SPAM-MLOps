@@ -36,7 +36,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Lint with flake8
-        run: poetry run flake8
+        run: poetry run make check
 
       - name: Create required directories
         working-directory: Development
