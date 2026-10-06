@@ -36,7 +36,7 @@ class DbSettings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore")
 
-    data_file_name: FilePath
+    data_file_name: FilePath | None = None
     db_file_name: FilePath
     db_url: str
     table_name: str
