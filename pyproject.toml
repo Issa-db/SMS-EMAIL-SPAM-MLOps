@@ -22,6 +22,12 @@ dependencies = [
     "ruff (>=0.16.10,<0.17.0)",
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=. --cov-report=term-missing --cov-report=html"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
