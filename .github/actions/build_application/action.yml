@@ -24,10 +24,12 @@ runs:
 
     - name: Cache Poetry dependencies
       uses: actions/cache@v4
+      id: cached-poetry-dependencies
       with:
         path: .venv
         key: venv-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
 
-    - name: Install dependencies
-      run: poetry install --no-interaction
+    - name: Install dependencies using poetry
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry run make install
       shell: bash
