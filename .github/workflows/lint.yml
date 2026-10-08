@@ -40,7 +40,6 @@ jobs:
 
       - name: Run pipeline (train + inference)
         env:
-          DATA_FILE_NAME: ${{ vars.DATA_FILE_NAME }}
           DB_FILE_NAME: ${{ vars.DB_FILE_NAME }}
           DB_URL: ${{ vars.DB_URL }}
           MODEL_PATH: ${{ vars.MODEL_PATH }}
