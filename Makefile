@@ -1,14 +1,15 @@
-.PHONY: run install check clean runner
+.PHONY: run install check test clean runner
 .DEFAULT_GOAL := runner
 
 run:
-	cd Development; poetry run python3 runner.py
-install: pyproject.toml
-	cd Development; poetry install
+	poetry run python3 runner.py
+install: pyproject.toml poetry.lock
+	poetry install
 check:
-	poetry run flake8
+	poetry run flake8 config db model runner.py
 test:
-	cd Development; poetry run pytest
+	poetry run pytest --cov
+
 clean:
 	rm -rf `find . -name "__pycache__" -type d`
 	rm -rf `find . -name "*.pyc" -type f`

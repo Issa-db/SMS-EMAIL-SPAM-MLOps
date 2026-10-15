@@ -218,6 +218,5 @@ def save_model_onnx(model: MultinomialNB,
                 f' and vectorizer saved to {vectorizer_path}')
 
 
-# run the build_model function to train and evaluate the model
-
-model = build_model()
+if __name__ == "__main__":
+    build_model()

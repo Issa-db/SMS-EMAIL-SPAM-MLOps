@@ -14,6 +14,7 @@ from loguru import logger
 from model.pipeline.collection import load_data_from_db
 
 MESSAGE_COLUMN = "Message"
+TARGET_COLUMN = "target"
 
 
 @logger.catch(message="Failed to clean a message")
@@ -48,23 +49,24 @@ def _normalize_data(dataset: pd.DataFrame) -> pd.DataFrame:
     dataset["Category"] = (
         dataset["Category"].astype(str).str.strip().str.lower()
     )
-    dataset["target"] = (
-        dataset["Category"].map({"ham": 0, "spam": 1}).astype("int8")
-    )
+    targets = dataset["Category"].map({"ham": 0, "spam": 1})
 
-    unmapped = dataset["target"].isna().sum()
+    unmapped = targets.isna().sum()
     if unmapped > 0:
         logger.warning(f"{unmapped} rows had unrecognized category values")
 
     messages = messages.fillna("").astype(str).str.strip()
-    dataset = dataset[messages.str.len() > 0].reset_index(drop=True)
-    messages = messages[messages.str.len() > 0].reset_index(drop=True)
+    valid_rows = targets.notna() & messages.str.len().gt(0)
+    dataset = dataset[valid_rows].reset_index(drop=True)
+    targets = targets[valid_rows].reset_index(drop=True)
+    messages = messages[valid_rows].reset_index(drop=True)
 
     dropped = before - len(dataset)
     if dropped > 0:
-        logger.warning(f"dropped {dropped} rows with empty messages")
+        logger.warning(f"dropped {dropped} invalid rows")
 
     messages = messages.apply(_clean_text)
+    dataset[TARGET_COLUMN] = targets.astype("int8")
     dataset[MESSAGE_COLUMN] = messages
 
     return dataset
@@ -85,7 +87,7 @@ def prepare_data() -> tuple[pd.Series, pd.Series]:
     query_data = _normalize_data(query_data)
 
     logger.info(f'Data preparation complete: {len(query_data)} rows ready')
-    return query_data[MESSAGE_COLUMN], query_data["target"]
+    return query_data[MESSAGE_COLUMN], query_data[TARGET_COLUMN]
 
 
 if __name__ == "__main__":

@@ -24,10 +24,18 @@ dependencies = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --cov=. --cov-report=term-missing --cov-report=html"
+addopts = "-v -p no:capture --cov=config --cov=db --cov=model --cov=runner --cov-report=term-missing --cov-report=html --cov-fail-under=80"
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[tool.poetry.group.test.dependencies]
+pytest = ">=8.3,<8.4"
+pytest-cov = ">=6.0,<8.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

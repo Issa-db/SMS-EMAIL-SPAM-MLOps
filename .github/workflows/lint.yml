@@ -20,7 +20,19 @@ jobs:
           python-version: "3.12"
 
       - name: Lint with flake8
-        run: poetry run flake8
+        run: poetry run flake8 config db model runner.py
+
+      - name: Run tests with coverage
+        env:
+          DB_FILE_NAME: ./db/emails.sqlite
+          DB_URL: sqlite:///./db/emails.sqlite
+          TABLE_NAME: spam_messages
+          MODEL_PATH: ./artifacts/models
+          MODEL_NAME: NB_db_v1.onnx
+          VECTORIZER_PATH: ./artifacts/vectorizer
+          VECTORIZER_NAME: vectorizer.joblib
+          LOG_LEVEL: INFO
+        run: poetry run pytest --cov
 
   run-pipeline:
     runs-on: ubuntu-latest
