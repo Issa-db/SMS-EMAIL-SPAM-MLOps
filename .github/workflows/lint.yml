@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main, development, "feature/**"]
+  pull_request:
+    branches: [main, development]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Build application
+        uses: ./.github/actions/build_application
+        with:
+          python-version: "3.12"
+      - name: Lint
+        run: poetry run flake8 src tests
+      - name: Test with coverage
+        run: poetry run pytest
