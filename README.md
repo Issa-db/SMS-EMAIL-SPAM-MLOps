@@ -18,13 +18,16 @@ flowchart LR
 
 The model classifies each SMS/email message as **spam** (`1`) or **ham** (`0`). The vectorizer and ONNX model are a paired artifact bundle: the vectorizer creates the feature columns expected by the model. Training and serving must use the same pair.
 
-The builder is an offline command, while the Flask app handles online inference. They have separate responsibilities and can run as separate processes. This repository is the first decomposition step; independent deployment and artifact-registry integration can be added as the next step. Prediction is CPU-bound, so asynchronous syntax alone will not make the model run faster.
+The builder is an offline command, while the Flask app handles online inference. They have separate responsibilities and can run as separate processes. The builder can track runs with MLflow and writes a versioned local bundle containing the ONNX model, its vectorizer, and a manifest with run identity, data counts, metrics, configuration, and SHA-256 checksums. It also refreshes the configured model and vectorizer paths used by the current inference service. Prediction is CPU-bound, so asynchronous syntax alone will not make the model run faster.
 
 ## Project layout
 
 ```text
 app/
 ├── .github/                  # CI setup and lint/test workflow
+├── artifacts/
+│   ├── bundles/               # Immutable local bundles by training run
+│   └── latest_bundle.json     # Manifest for the most recently published run
 ├── src/
 │   ├── api.py                 # Flask HTTP boundary
 │   ├── config/                # Pydantic settings and Loguru setup
@@ -51,6 +54,12 @@ cp .env.example src/config/.env
 poetry install --with test,lint
 ```
 
+Install the optional MLflow dependency when developing or running tracked training:
+
+```bash
+poetry install --with tracking
+```
+
 Run unit and API tests:
 
 ```bash
@@ -62,6 +71,32 @@ Train and export a new model/vectorizer pair from the configured SQLite table:
 ```bash
 poetry run python -m src.runner_builder
 ```
+
+MLflow tracking is off by default. Install its dependency group with `make install-tracking`, then set `MLFLOW_TRACKING_ENABLED=true` to record run parameters, held-out metrics, and the versioned artifact bundle. Without an explicit `MLFLOW_TRACKING_URI`, runs are stored in a local SQLite tracking database at `mlflow.db`. Set `DATASET_VERSION` when the source data has a stable snapshot identifier; the builder records row and class counts but never logs message text. The code revision comes from `CODE_REVISION`, `GITHUB_SHA`, or the current Git checkout. `MINIMUM_ACCURACY` is optional and has no default threshold; configure it only after defining an acceptance target for the application. The random seed, test split, and cross-validation folds are configurable in `.env.example`; vectorizer and classifier search settings are recorded in each run and manifest.
+
+### View training runs in the MLflow UI
+
+Enable tracking in `src/config/.env`:
+
+```dotenv
+MLFLOW_TRACKING_ENABLED=true
+```
+
+Run training to create a tracked run (runs created while tracking is disabled are not added retroactively):
+
+```bash
+make train
+```
+
+In a second terminal, from the app root, start the UI against the default local tracking database:
+
+```bash
+poetry run mlflow ui --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5001
+```
+
+Open [http://127.0.0.1:5001](http://127.0.0.1:5001) to inspect run parameters, metrics, and artifacts. The UI uses port 5001 so it can run alongside the inference API on port 5000. If `MLFLOW_TRACKING_URI` points to a different tracking store, pass that same URI as `--backend-store-uri` when launching the UI.
+
+Each successful run is copied to `artifacts/bundles/<run-id>/`. The local inference API continues to load `MODEL_PATH` and `VECTORIZER_PATH` by default. Set `INFERENCE_BUNDLE_MANIFEST=artifacts/latest_bundle.json` to load and checksum-verify the latest published bundle, or point it at a versioned bundle's `manifest.json` to select an exact run. The versioned bundle and MLflow run artifacts provide a handoff point for independently deployed inference. Model registration, promotion, and rollback are not enabled yet.
 
 Start the inference API after the artifacts exist:
 

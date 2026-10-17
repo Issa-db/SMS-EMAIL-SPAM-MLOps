@@ -1,8 +1,11 @@
-.PHONY: install lint test check train api clean
+.PHONY: install install-tracking lint test check train api clean
 .DEFAULT_GOAL := check
 
 install:
 	poetry install --with test,lint
+
+install-tracking:
+	poetry install --with test,lint,tracking
 
 lint:
 	poetry run flake8 src tests

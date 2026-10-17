@@ -26,11 +26,15 @@ def test_settings_validate_environment_values(monkeypatch, tmp_path: Path) -> No
     monkeypatch.setenv("MODEL_PATH", str(model_path))
     monkeypatch.setenv("TABLE_NAME", "training_rows")
     monkeypatch.setenv("PORT", "8080")
+    monkeypatch.setenv("RANDOM_STATE", "17")
+    monkeypatch.setenv("MLFLOW_TRACKING_ENABLED", "true")
     settings = Settings()
 
     assert settings.model_path == model_path
     assert settings.table_name == "training_rows"
     assert settings.port == 8080
+    assert settings.random_state == 17
+    assert settings.mlflow_tracking_enabled is True
 
 
 def test_configure_logger_creates_sinks(monkeypatch, tmp_path: Path) -> None:

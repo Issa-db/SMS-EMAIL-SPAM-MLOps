@@ -5,6 +5,7 @@ from loguru import logger
 from pydantic import BaseModel, StrictStr, ValidationError
 
 from src.config.settings import Settings
+from src.model.artifacts import resolve_bundle_manifest
 from src.model.model_inference import ModelInferenceService
 
 
@@ -20,9 +21,21 @@ def create_app(
 ) -> Flask:
     """Create the API and load inference dependencies at application startup."""
     application_settings = settings or Settings()
+    model_path = application_settings.model_path
+    vectorizer_path = application_settings.vectorizer_path
+    if application_settings.inference_bundle_manifest is not None:
+        try:
+            model_path, vectorizer_path = resolve_bundle_manifest(
+                application_settings.inference_bundle_manifest,
+            )
+        except Exception:
+            logger.opt(exception=True).critical(
+                "Inference startup failed while resolving the selected bundle",
+            )
+            raise
     service = inference_service or ModelInferenceService(
-        application_settings.model_path,
-        application_settings.vectorizer_path,
+        model_path,
+        vectorizer_path,
     )
     if service.session is None or service.vectorizer is None:
         try:

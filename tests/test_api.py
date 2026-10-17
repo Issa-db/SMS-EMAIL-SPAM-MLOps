@@ -2,6 +2,7 @@
 
 from unittest.mock import Mock
 
+from src import api
 from src.api import create_app
 from src.config.settings import Settings
 
@@ -110,3 +111,20 @@ def test_create_app_loads_cold_inference_service() -> None:
     create_app(Settings(), service)
 
     service.load_model.assert_called_once_with()
+
+
+def test_create_app_resolves_configured_bundle_manifest(monkeypatch, tmp_path) -> None:
+    """Build inference from the exact model pair selected by a manifest."""
+    manifest_path = tmp_path / "bundle.json"
+    manifest_path.write_text("{}", encoding="utf-8")
+    model_path = tmp_path / "versioned-model.onnx"
+    vectorizer_path = tmp_path / "versioned-vectorizer.joblib"
+    resolve_manifest = Mock(return_value=(model_path, vectorizer_path))
+    constructor = Mock(return_value=make_service())
+    monkeypatch.setattr(api, "resolve_bundle_manifest", resolve_manifest)
+    monkeypatch.setattr(api, "ModelInferenceService", constructor)
+
+    create_app(Settings(inference_bundle_manifest=manifest_path))
+
+    resolve_manifest.assert_called_once_with(manifest_path)
+    constructor.assert_called_once_with(model_path, vectorizer_path)
